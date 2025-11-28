@@ -1,0 +1,174 @@
+ModelMarkt Project Structure (Hackathon Edition)
+🚀 Project Description
+
+A lightweight marketplace for fast classification APIs. Users can upload pretrained vision models (e.g., fruit-freshness classifier, dog detector, etc.), test them in an interactive playground, and generate API keys to call them programmatically.
+
+The project is intentionally built for a hackathon using two fully decoupled repositories:
+
+Frontend repo — UI, authentication, playground
+
+Backend repo — API services, file-based storage
+
+They are deployed, versioned, and developed independently.
+
+ModelMarkt Project Structure (Hackathon Edition)
+
+This document describes the architecture, folder structure, API contract, and conventions for ModelMarkt.
+It is optimized for a fast hackathon build with separate frontend and backend repositories that communicate only via HTTP.
+
+🏗️ High-Level Architecture
+
+Frontend (Next.js or SvelteKit — separate repository)
+Communicates only with the backend via process.env.BACKEND_URL.
+
+Backend (Node + Express or FastAPI — separate repository)
+Stateless. No real database — just JSON files and model files inside the /models folder.
+
+Storage (local filesystem inside the backend repo)
+
+/models/models.json → List of models and metadata
+
+/models/<id>.keras → The saved model
+
+/models/<id>.json → Optional model metadata
+
+/apikeys.json → Stored API keys mapped to StackAuth user IDs
+
+📁 Recommended Repo Structure
+Repo 1: Frontend
+frontend-repo/
+  src/
+  package.json
+  .env  (BACKEND_URL=...)
+  README.md
+
+Repo 2: Backend
+backend-repo/
+  src/
+    routes/
+      models.ts
+      upload.ts
+      apikey.ts
+    utils/
+      fs.ts
+      validation.ts
+  models/
+    models.json
+    <modelId>.keras
+    <modelId>.json
+  apikeys.json
+  package.json
+  README.md
+
+🔌 Backend API Contract
+GET /models
+
+Returns the list of available models.
+
+{
+  models: [
+    {
+      id: "123",
+      name: "Object Detector",
+      description: "Detects items from…",
+      createdAt: "2025-01-01"
+    }
+  ]
+}
+
+POST /model/:id
+
+Runs inference for a model.
+
+Body:
+
+file (multipart)
+
+optional JSON params
+
+POST /upload
+
+Uploads a new trained model.
+
+Flow:
+
+Save model and metadata in /models/
+
+Update models.json
+
+POST /apikey/create
+
+Request body:
+
+{
+  "stackauthUserId": "string"
+}
+
+
+Response:
+
+{
+  apiKey: "generated-key-abc123"
+}
+
+
+Stored in apikeys.json.
+
+GET /apikey/get?userId=XXX
+
+Returns an existing API key.
+
+{
+  apiKey: "abc123"
+}
+
+👤 User Profile Requirements (Frontend Only)
+
+Stored only in the frontend via StackAuth:
+
+Name
+
+Email
+
+Profile picture
+
+API key generation button
+
+Backend stores only API keys.
+
+🎛️ Model Playground UI (Frontend)
+
+For each model page:
+
+File upload
+
+Optional parameters
+
+Run Model → POST to backend
+
+Output viewer
+
+🚫 Billing
+
+Skipped for hackathon.
+
+🔧 Environment Variables
+
+Frontend config:
+
+BACKEND_URL="http://localhost:3001"
+
+
+Backend has no env vars (hackathon mode).
+
+🧪 Recommended Backend Stack
+
+Node.js + Express
+
+multer
+
+fs/promises
+
+crypto
+
+cors

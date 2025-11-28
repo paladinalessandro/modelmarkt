@@ -1,0 +1,14 @@
+{
+  "models": [
+    {
+      "id": "f8e1bab0-5eb8-41bf-9a28-8e85cd15798e",
+      "name": "Fruit Freshness Classifier",
+      "description": "Classifies fruit freshness from images",
+      "filename": "f8e1bab0-5eb8-41bf-9a28-8e85cd15798e.keras",
+      "inputType": "image",
+      "createdAt": "2025-11-28T23:43:55.202Z",
+      "userId": "test-user-1",
+      "callCount": 1
+    }
+  ]
+}

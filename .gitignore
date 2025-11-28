@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# API Keys
+apikeys.json
+
+# Model files (too large for git)
+models/*.keras
+models/*.h5
+models/*.pt
+models/*.onnx
+models/*.pb
+models/*.pth
+
+# Keep models.json structure
+!models/models.json
+
+# Temp upload directory
+temp/
+
+# Test files
+test_fruits/
+*.test.jpg
+*.test.png
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+venv/
+.venv/
