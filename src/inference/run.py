@@ -15,8 +15,13 @@ def main():
 
     try:
         import tensorflow as tf
+        import tensorflow_hub as hub
 
-        model = tf.keras.models.load_model(model_path)
+        # Register KerasLayer for TF Hub models
+        model = tf.keras.models.load_model(
+            model_path,
+            custom_objects={'KerasLayer': hub.KerasLayer}
+        )
 
         input_shape = model.input_shape[1:3]
         img = Image.open(image_path).convert("RGB")

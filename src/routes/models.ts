@@ -11,7 +11,6 @@ import {
     updateModel,
 } from "../utils/fs";
 import { isValidModelId } from "../utils/validation";
-import { authMiddleware, AuthenticatedRequest } from "../middleware/auth";
 import { runInference } from "../utils/inference";
 import {
     NotFoundError,
@@ -83,96 +82,82 @@ router.get("/:id", async (req, res, next) => {
     }
 });
 
-router.post(
-    "/:id",
-    authMiddleware,
-    imageUpload.single("image"),
-    async (req: AuthenticatedRequest, res, next) => {
-        let tempFilePath: string | null = null;
+router.post("/:id", imageUpload.single("image"), async (req, res, next) => {
+    let tempFilePath: string | null = null;
 
-        try {
-            const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-            const model = await getModelById(id);
-            if (!model) {
-                throw new NotFoundError("Model");
-            }
-
-            if (!req.file) {
-                throw new ValidationError("Image file required");
-            }
-
-            tempFilePath = req.file.path;
-            const modelFilePath = getModelFilePath(model.filename);
-            const result = await runInference(modelFilePath, tempFilePath);
-
-            await incrementModelCallCount(id);
-
-            res.json({ model: model.name, result });
-        } catch (error) {
-            next(error);
-        } finally {
-            if (tempFilePath) {
-                await fs.unlink(tempFilePath).catch(() => {});
-            }
+        const model = await getModelById(id);
+        if (!model) {
+            throw new NotFoundError("Model");
         }
-    },
-);
 
-router.patch(
-    "/:id",
-    authMiddleware,
-    async (req: AuthenticatedRequest, res, next) => {
-        try {
-            const { id } = req.params;
-            const { name, description } = req.body;
-
-            const model = await getModelById(id);
-            if (!model) {
-                throw new NotFoundError("Model");
-            }
-
-            if (model.userId && model.userId !== req.userId) {
-                throw new ForbiddenError("You can only edit your own models");
-            }
-
-            const updates: { name?: string; description?: string } = {};
-            if (name) updates.name = name.trim();
-            if (description !== undefined)
-                updates.description = description.trim();
-
-            const updated = await updateModel(id, updates);
-
-            res.json({ model: updated });
-        } catch (error) {
-            next(error);
+        if (!req.file) {
+            throw new ValidationError("Image file required");
         }
-    },
-);
 
-router.delete(
-    "/:id",
-    authMiddleware,
-    async (req: AuthenticatedRequest, res, next) => {
-        try {
-            const { id } = req.params;
+        tempFilePath = req.file.path;
+        const modelFilePath = getModelFilePath(model.filename);
+        const result = await runInference(modelFilePath, tempFilePath);
 
-            const model = await getModelById(id);
-            if (!model) {
-                throw new NotFoundError("Model");
-            }
+        await incrementModelCallCount(id);
 
-            if (model.userId && model.userId !== req.userId) {
-                throw new ForbiddenError("You can only delete your own models");
-            }
-
-            await deleteModel(id);
-
-            res.json({ message: "Model deleted" });
-        } catch (error) {
-            next(error);
+        res.json({ model: model.name, result });
+    } catch (error) {
+        next(error);
+    } finally {
+        if (tempFilePath) {
+            await fs.unlink(tempFilePath).catch(() => {});
         }
-    },
-);
+    }
+});
+
+router.patch("/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, description } = req.body;
+
+        const model = await getModelById(id);
+        if (!model) {
+            throw new NotFoundError("Model");
+        }
+
+        if (model.userId) {
+            throw new ForbiddenError("You can only edit your own models");
+        }
+
+        const updates: { name?: string; description?: string } = {};
+        if (name) updates.name = name.trim();
+        if (description !== undefined) updates.description = description.trim();
+
+        const updated = await updateModel(id, updates);
+
+        res.json({ model: updated });
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.delete("/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const model = await getModelById(id);
+        if (!model) {
+            throw new NotFoundError("Model");
+        }
+
+        if (model.userId) {
+            throw new ForbiddenError("You can only delete your own models");
+        }
+
+        await deleteModel(id);
+
+        res.json({ message: "Model deleted" });
+    } catch (error) {
+        next(error);
+    }
+});
 
 export default router;

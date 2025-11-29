@@ -12,7 +12,7 @@ export interface InferenceResult {
 export function runInference(
     modelPath: string,
     imagePath: string,
-    timeoutMs: number = 30000,
+    timeoutMs: number = 120000,
 ): Promise<InferenceResult> {
     return new Promise((resolve, reject) => {
         const scriptPath = path.join(__dirname, "../inference/run.py");

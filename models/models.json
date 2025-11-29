@@ -8,6 +8,16 @@
       "inputType": "image",
       "createdAt": "2025-11-28T23:43:55.202Z",
       "userId": "test-user-1",
+      "callCount": 2
+    },
+    {
+      "id": "6a913b96-2f05-4166-8bf5-762cb08bd4ca",
+      "name": "Dog Breed Classifier",
+      "description": "Classifies dog breeds from images (120 breeds)",
+      "filename": "6a913b96-2f05-4166-8bf5-762cb08bd4ca.h5",
+      "inputType": "image",
+      "createdAt": "2025-11-29T00:14:16.217Z",
+      "userId": "test-user-1",
       "callCount": 1
     }
   ]
